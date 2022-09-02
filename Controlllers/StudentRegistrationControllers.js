@@ -1,4 +1,9 @@
+const res = require('express/lib/response')
 const db=require('../Config/dbConnection')
+const jwt = require('jsonwebtoken')
+
+require('dotenv').config()
+
 const MyDB=db.StudentRegistration
 
 exports.getAllData=async(req,res)=>{
@@ -19,11 +24,15 @@ exports.getAllData=async(req,res)=>{
         })
     })
 }
-exports.postRegi=async(req,res,next)=>{
+exports.postRegi=async(req,res,next)=>{    
     const post=await{
-        name:req.body.name,
+        name:req.body.fname+" "+ req.body.lastname,
         email:req.body.email,
-        mobile:req.body.mobile
+        password:req.body.password,
+        mobile:req.body.mobile,      
+        gender:req.body.gender,  
+        city:req.body.city,  
+        isActive:0 
     }
     console.log('postRegi',post);
     const data = await MyDB.create(post)
@@ -46,9 +55,13 @@ exports.studentUpdate = async(req,res)=>{
     const {id} =req.query
     
     const update={
-        name:req.body.name,
+        name:fname+" "+lastname,
         email:req.body.email,
-        mobile:req.body.mobile
+        password:req.body.password,
+        mobile:req.body.mobile,      
+        gender:req.body.gender,  
+        city:req.body.city, 
+        isActive:1 
     }
     const data=await MyDB.update(update,{where:{
         SubjectID:id
@@ -108,4 +121,25 @@ exports.getfindByid=async(req,res)=>{
         message:`Not Found! ${err.message}`
     })
    })
+}
+exports.UserLogin=async(req,res)=>{
+    const {email,password} =req.body
+
+    const data = await MyDB.findOne({where: {email:email, password:password}})
+    if(data){
+        const jsonToken = jwt.sign({ id: data.id, email: data.name }, process.env.SECRET_KEY)
+        res.send({
+            status:true,
+            message:'Login Successfully',
+            result:data,
+            token:jsonToken
+        })
+    }
+    else{
+        res.send({
+            status:false,
+            message:'Login failed invalid email or password'
+            
+        })
+    }
 }
