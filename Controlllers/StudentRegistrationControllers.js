@@ -126,14 +126,26 @@ exports.UserLogin=async(req,res)=>{
     const {email,password} =req.body
 
     const data = await MyDB.findOne({where: {email:email, password:password}})
+    
     if(data){
-        const jsonToken = jwt.sign({ id: data.id, email: data.name }, process.env.SECRET_KEY)
-        res.send({
+        
+        if(data.isActive){
+            res.send({
+                status:false,
+                message:`Email not verified`
+                
+            })
+        }
+        else{
+            const jsonToken = jwt.sign({ id: data.id, email: data.name }, process.env.SECRET_KEY)
+         res.send({
             status:true,
             message:'Login Successfully',
             result:data,
             token:jsonToken
         })
+        }
+        
     }
     else{
         res.send({

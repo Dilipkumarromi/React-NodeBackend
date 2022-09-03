@@ -26,7 +26,7 @@ const sequelize=new Sequelize(database,user,password,{
       
 });
     sequelize.authenticate().then(() => {
-        console.log("Connect Sequelize to MSSQL Server");
+        console.log("Connect Sequelize to Mysql Server");
        
     })
     .catch(err => {
