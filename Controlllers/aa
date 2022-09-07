@@ -1,0 +1,30 @@
+def powers(x):
+    y = x
+    while True:
+        yield y
+        y *= x
+
+
+def products(factors):
+    y0 = factors[0]
+    if len(factors) == 1:
+        yield from powers(y0)
+    else:
+        yield y0
+        g1 = products(factors)
+        y1 = y0 * next(g1)
+        g2 = products(factors[1:])
+        y2 = next(g2)
+        while True:
+            if y1 < y2:
+                yield y1
+                y1 = y0 * next(g1)
+            else:
+                yield y2
+                y2 = next(g2)
+
+
+if __name__ == "__main__":
+    import itertools
+    for n in itertools.islice(products([2, 3, 5, 7]), 10**6):
+        print(n)
